@@ -180,7 +180,7 @@ public class RobotContainer {
                 .ignoringDisable(true));
     controller.a()
         .whileTrue();*/
-    controller.y().onTrue(intake.setVoltage())
+    controller.y().onTrue(intake.setIntakeDirection(IntakeDirection.FORWARD))
   }
 
   /**

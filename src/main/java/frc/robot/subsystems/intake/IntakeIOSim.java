@@ -31,6 +31,9 @@ public class IntakeIOSim implements IntakeIO {
   private double appliedVolts = 0.0;
   private double feederAppliedVolts = 0.0;
 
+  private IntakeStatus intake_status;
+  private IntakeDirection intake_direction;
+
   @Override
   public void updateInputs(IntakeIOInputs inputs) {
     /*if (closedLoop) {
@@ -53,6 +56,19 @@ public class IntakeIOSim implements IntakeIO {
     inputs.feederAppliedVolts = feederAppliedVolts;
     inputs.feederCurrentAmps = new double[] {simFeeder.getCurrentDrawAmps()};
 
+    inputs.status = intake_status;
+    inputs.direction = intake_direction;
+
+  }
+
+  @Override
+  public void setStatus(IntakeStatus state) {
+    intake_status = state;
+  }
+
+  @Override
+  public void setDirection(IntakeDirection state) {
+    intake_direction = state;
   }
 
   @Override

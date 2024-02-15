@@ -50,6 +50,9 @@ public final class Constants {
   public static final double INTAKE_FORWARD_SPEED = 0.5;
   public static final double INTAKE_REVERSE_SPEED = 0.5;
 
+  public static final double FEEDER_FORWARD_SPEED = 0.5;
+  public static final double FEEDER_REVERSE_SPEED = 0.5;
+
   public static enum Mode {
     /** Running on a real robot. */
     REAL,

@@ -28,6 +28,10 @@ public interface IntakeIO {
 
     public double feederAppliedVolts = 0.0;
 
+    public IntakeDirection direction = IntakeDirection.STOPPED;
+
+    public IntakeStatus status = IntakeStatus.EMPTY;
+
     public double[] feederCurrentAmps = new double[] {};
 
   }
@@ -37,6 +41,10 @@ public interface IntakeIO {
 
   /** Run open loop at the specified voltage. */
   public default void setVoltage(double volts) {}
+
+  public default void setStatus(IntakeStatus state) {}
+
+  public default void setDirection(IntakeDirection state) {}
 
   public default boolean getBeamBreak() {
     return false;

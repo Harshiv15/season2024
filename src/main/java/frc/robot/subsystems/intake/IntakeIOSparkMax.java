@@ -33,6 +33,8 @@ public class IntakeIOSparkMax implements IntakeIO {
   private final CANSparkMax main_intake = new CANSparkMax(Constants.MOTOR_INTAKE, MotorType.kBrushless);
   private final CANSparkMax main_feeder = new CANSparkMax(Constants.MOTOR_FEEDER, MotorType.kBrushless);
   private final DigitalInput beam_break = new DigitalInput(Constants.BEAM_CHANNEL);
+  private IntakeStatus intake_status;
+  private IntakeDirection intake_direction;
 
   //private final SparkPIDController pid = main_intake.getPIDController();
 
@@ -61,15 +63,27 @@ public class IntakeIOSparkMax implements IntakeIO {
   }
 
   @Override
-  public void updateInputs(ClimberIOInputs inputs) {
+  public void updateInputs(IntakeIOInputs inputs) {
   
     inputs.appliedVolts = main_intake.getAppliedOutput() * main_intake.getBusVoltage();
     inputs.currentAmps = new double[] {main_intake.getOutputCurrent()};
     inputs.beamBreak = getBeamBreak();
     inputs.feederCurrentAmps = new double[] {main_feeder.getOutputCurrent()};
     inputs.feederAppliedVolts = main_feeder.getAppliedOutput() * main_feeder.getBusVoltage();
+    inputs.status = intake_status;
+    inputs.direction = intake_direction;
 
     
+  }
+
+  @Override
+  public void setStatus(IntakeStatus state) {
+    intake_status = state;
+  }
+
+  @Override
+  public void setDirection(IntakeDirection state) {
+    intake_direction = state;
   }
 
   @Override

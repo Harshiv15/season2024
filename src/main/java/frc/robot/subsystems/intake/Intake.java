@@ -64,21 +64,24 @@ public static enum IntakeStatus {
     io.updateInputs(inputs);
     Logger.processInputs("Intake", inputs);
 
-//periodic logic
-if (intakeSensor.isPresent()) {
-  if (!intakeSensor.get().get()) {
-      status = IntakeStatus.EMPTY;
-  } else {
-      status = IntakeStatus.LOADED;
-  }
-}
 
-if (direction == IntakeDirection.FORWARD) {
+
+  //check this if statement because might be backwards, also assumes beam exists
+  if (!io.getBeamBreak()) {
+    io.setStatus(IntakeStatus.EMPTY);
+  } else {
+    io.setStatus(IntakeStatus.LOADED);
+  }
+
+
+if (io.direction == IntakeDirection.FORWARD) {
   //setSpeed(Constants.INTAKE_FORWARD_SPEED, Constants.FEEDER_FORWARD_SPEED);
-  setVoltage(Constants.INTAKE_FORWARD_SPEED);
-} else if (direction == IntakeDirection.REVERSE) {
+  runVolts(Constants.INTAKE_FORWARD_SPEED);
+  runFeederVolts(Constants.FEEDER_FORWARD_SPEED);
+} else if (io.direction == IntakeDirection.REVERSE) {
   //setSpeed(Constants.INTAKE_REVERSE_SPEED, Constants.FEEDER_REVERSE_SPEED);
-  setVoltage(Constants.INTAKE_FORWARD_SPEED);
+  runVolts(Constants.INTAKE_REVERSE_SPEED);
+  runFeederVolts(Constants.FEEDER_REVERSE_SPEED);
 } else {
   //setSpeed(0, 0);
   stop();
@@ -87,13 +90,18 @@ if (direction == IntakeDirection.FORWARD) {
   }
 
   //set intake state
+public void setIntakeDirection(IntakeDirection direction) {
+ io.setDirection(direction);
+}
 
   /** Run open loop at the specified voltage. */
   public void runVolts(double volts) {
     io.setVoltage(volts);
   }
 
-
+  public void runFeederVolts(double volts) {
+    io.setFeederVoltage(volts);
+  }
 
  
   /** Stops the flywheel. */
