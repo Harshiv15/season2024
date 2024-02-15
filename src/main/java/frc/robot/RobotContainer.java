@@ -164,18 +164,9 @@ public class RobotContainer {
             () -> -controllerDrive.getLeftY(),
             () -> -controllerDrive.getLeftX(),
             () -> -controllerDrive.getRightX()));
-    /*controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
-
-    controller.b()
-        .onTrue(
-            Commands.runOnce(
-                    () ->
-                        drive.setPose(
-                            new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
-                    drive)
-                .ignoringDisable(true));
-    controller.a()
-        .whileTrue();*/
+    //on hold for vision
+            //controllerDrive.rightBumper().whileTrue(vision.followNoteCommand())
+   
     controllerOperator.y().onTrue(intake.setIntakeDirection(IntakeDirection.FORWARD));
     controllerOperator.start().onTrue(intake.setIntakeDirection(IntakeDirection.REVERSE));
     climber.setDefaultCommand(climber.setVoltage(controllerOperator.getRightY().getAsDouble()/5.0));
