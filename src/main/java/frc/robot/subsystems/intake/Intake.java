@@ -94,6 +94,10 @@ public void setIntakeDirection(IntakeDirection direction) {
  io.setDirection(direction);
 }
 
+public boolean hasNote() {
+  return io.status == IntakeStatus.LOADED
+}
+
   /** Run open loop at the specified voltage. */
   public void runVolts(double volts) {
     io.setVoltage(volts);
@@ -107,6 +111,7 @@ public void setIntakeDirection(IntakeDirection direction) {
   /** Stops the flywheel. */
   public void stop() {
     io.stop();
+    io.stopFeeder();
   }
 
   /** Returns a command to run a quasistatic test in the specified direction. */

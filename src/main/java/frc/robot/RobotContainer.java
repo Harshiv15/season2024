@@ -36,6 +36,10 @@ import frc.robot.subsystems.flywheel.FlywheelIOSim;
 import frc.robot.subsystems.flywheel.FlywheelIOSparkMax;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
+import frc.robot.util.FlywheelLookupTable;
+import edu.wpi.first.wpilibj.DriverStation;
+import frc.robot.subsystems.Vision.PoseEstimator;
+
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -46,20 +50,26 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
 public class RobotContainer {
   // Subsystems
   private final Drive drive;
-  private final Flywheel flywheel;
   private final Climber climber;
   private final Intake intake;
   private final Shooter shooter;
   private final Pivot pivot;
 
 
+  //junk
+  FlywheelLookupTable lookupTable = FlywheelLookupTable.getInstance();
+  Pose2d target = DriverStation.getAlliance().equals(DriverStation.Alliance.Blue) ? Constants.BLUE_SPEAKER : Constants.RED_SPEAKER;
+  PoseEstimator poseEstimator = PoseEstimator.getInstance();
+
+
   // Controller
-  private final CommandXboxController controller = new CommandXboxController(0);
+  private final CommandXboxController controllerDrive = new CommandXboxController(0);
+  private final CommandXboxController controllerOperator = new CommandXboxController(1);
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
-  private final LoggedDashboardNumber flywheelSpeedInput =
-      new LoggedDashboardNumber("Flywheel Speed", 1500.0);
+  //private final LoggedDashboardNumber flywheelSpeedInput =
+    //  new LoggedDashboardNumber("Flywheel Speed", 1500.0);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -73,7 +83,6 @@ public class RobotContainer {
                 new ModuleIOSparkMax(1),
                 new ModuleIOSparkMax(2),
                 new ModuleIOSparkMax(3));
-        flywheel = new Flywheel(new FlywheelIOSparkMax());
         //should I have coded for one then input two
         climber = new Climber(new ClimberIOSparkMax());
         intake = new Intake(new IntakeIOSparkMax());
@@ -97,7 +106,6 @@ public class RobotContainer {
                 new ModuleIOSim(),
                 new ModuleIOSim(),
                 new ModuleIOSim());
-        flywheel = new Flywheel(new FlywheelIOSim());
         climber = new Climber(new ClimberIOSim());
         intake = new Intake(new IntakeIOSim());
         shooter = new Shooter(new ShooterIOSim());
@@ -113,7 +121,6 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {});
-        flywheel = new Flywheel(new FlywheelIO() {});
         climber = new Climber(new ClimberIO() {});
         intake = new Intake(new IntakeIO() {});
         shooter = new Shooter(new ShooterIO() {});
@@ -122,11 +129,11 @@ public class RobotContainer {
     }
 
     // Set up auto routines
-    NamedCommands.registerCommand(
+    /*NamedCommands.registerCommand(
         "Run Flywheel",
         Commands.startEnd(
                 () -> flywheel.runVelocity(flywheelSpeedInput.get()), flywheel::stop, flywheel)
-            .withTimeout(5.0));
+            .withTimeout(5.0));*/
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
     // Set up SysId routines
@@ -140,17 +147,6 @@ public class RobotContainer {
         "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
     autoChooser.addOption(
         "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-    autoChooser.addOption(
-        "Flywheel SysId (Quasistatic Forward)",
-        flywheel.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    autoChooser.addOption(
-        "Flywheel SysId (Quasistatic Reverse)",
-        flywheel.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    autoChooser.addOption(
-        "Flywheel SysId (Dynamic Forward)", flywheel.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    autoChooser.addOption(
-        "Flywheel SysId (Dynamic Reverse)", flywheel.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-
     // Configure the button bindings
     configureButtonBindings();
   }
@@ -165,9 +161,9 @@ public class RobotContainer {
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
             drive,
-            () -> -controller.getLeftY(),
-            () -> -controller.getLeftX(),
-            () -> -controller.getRightX()));
+            () -> -controllerDrive.getLeftY(),
+            () -> -controllerDrive.getLeftX(),
+            () -> -controllerDrive.getRightX()));
     /*controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
     controller.b()
@@ -180,9 +176,19 @@ public class RobotContainer {
                 .ignoringDisable(true));
     controller.a()
         .whileTrue();*/
-    controller.y().onTrue(intake.setIntakeDirection(IntakeDirection.FORWARD));
-    controller.start().onTrue(intake.setIntakeDirection(IntakeDirection.REVERSE));
-    climber.setDefaultCommand(climber.setVoltage(controller.getRightY().getAsDouble()/5.0))
+    controllerOperator.y().onTrue(intake.setIntakeDirection(IntakeDirection.FORWARD));
+    controllerOperator.start().onTrue(intake.setIntakeDirection(IntakeDirection.REVERSE));
+    climber.setDefaultCommand(climber.setVoltage(controllerOperator.getRightY().getAsDouble()/5.0));
+    controllerOperator.a().onTrue(Commands.runOnce(new ParallelCommandGroup(
+        new RunCommand(() -> pivot.setPosition(lookupTable
+        .get(poseEstimator.getDistanceToPose(target.getTranslation())).getAngleSetpoint()))
+                        .until(() -> pivot.isAtGoal()),
+        
+        shooter.runVelocity(lookupTable.get(
+            poseEstimator.getDistanceToPose(target.getTranslation())).getRPM()).until(null)
+    ),
+    new InstantCommand(() -> intake.setIntakeDirection(IntakeDirection.FORWARD)).onlyWhile(() -> intake.hasNote()),
+    new InstantCommand(() -> shooter.stop()).onlyIf(() -> !intake.hasNote())));
   }
 
   /**

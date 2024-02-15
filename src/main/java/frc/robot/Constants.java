@@ -53,6 +53,13 @@ public final class Constants {
   public static final double FEEDER_FORWARD_SPEED = 0.5;
   public static final double FEEDER_REVERSE_SPEED = 0.5;
 
+  public static final Pose2d BLUE_SPEAKER = new Pose2d(0, 5.52, new Rotation2d(Math.PI));
+    public static final Pose2d BLUE_AMP = new Pose2d(1.79, 7.60, new Rotation2d(Math.PI / 2));
+    public static final Pose2d BLUE_SOURCE = new Pose2d(15.3, 1.11, Rotation2d.fromDegrees(-55));
+    public static final Pose2d RED_SPEAKER = new Pose2d(16.54175, 5.6, new Rotation2d(Math.PI));
+    public static final Pose2d RED_AMP = new Pose2d(14.68, 7.52, new Rotation2d(Math.PI / 2));
+    public static final Pose2d RED_SOURCE = new Pose2d(1.14, 1.00, Rotation2d.fromDegrees(-120));
+
   public static enum Mode {
     /** Running on a real robot. */
     REAL,

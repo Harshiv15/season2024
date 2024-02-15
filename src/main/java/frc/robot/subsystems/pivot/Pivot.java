@@ -23,8 +23,10 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 
-public class Pivot extends SubsystemBase {
+
+public class Pivot extends ProfiledPIDSubsystem {
   private final PivotIO io;
   private final PivotIOInputsAutoLogged inputs = new PivotIOInputsAutoLogged();
   private final SimpleMotorFeedforward ffModel;
@@ -67,6 +69,14 @@ public class Pivot extends SubsystemBase {
     io.updateInputs(inputs);
     Logger.processInputs("Pivot", inputs);
   }
+
+  public void setPosition() {
+    getController().setGoal(setpoint);
+  }
+
+  public boolean isAtGoal() {
+    return getController().atGoal();
+  } 
 
   /** Run open loop at the specified voltage. */
   public void runVolts(double volts) {
