@@ -20,6 +20,8 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.SparkPIDController.ArbFFUnits;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DigitalInput;
+
 
 /**
  * NOTE: To use the Spark Flex / NEO Vortex, replace all instances of "CANSparkMax" with
@@ -28,59 +30,72 @@ import edu.wpi.first.math.util.Units;
 public class IntakeIOSparkMax implements IntakeIO {
   private static final double GEAR_RATIO = Constants.GEAR_RATIO_INTAKE;
 
-  private final CANSparkMax leader = new CANSparkMax(Constants.MOTOR_INTAKE, MotorType.kBrushless);
-  private final RelativeEncoder encoder = leader.getEncoder();
-  //private final SparkPIDController pid = leader.getPIDController();
+  private final CANSparkMax main_intake = new CANSparkMax(Constants.MOTOR_INTAKE, MotorType.kBrushless);
+  private final CANSparkMax main_feeder = new CANSparkMax(Constants.MOTOR_FEEDER, MotorType.kBrushless);
+  private final DigitalInput beam_break = new DigitalInput(Constants.BEAM_CHANNEL);
+
+  //private final SparkPIDController pid = main_intake.getPIDController();
 
   public IntakeIOSparkMax() {
-    leader.restoreFactoryDefaults();
+    main_intake.restoreFactoryDefaults();
 
-    leader.setCANTimeout(250);
+    main_intake.setCANTimeout(250);
 
-    leader.setInverted(false);
+    main_intake.setInverted(false);
 
-    leader.enableVoltageCompensation(12.0);
-    leader.setSmartCurrentLimit(30);
+    main_intake.enableVoltageCompensation(12.0);
+    main_intake.setSmartCurrentLimit(30);
 
-    leader.burnFlash();
+    main_feeder.restoreFactoryDefaults();
+
+    main_feeder.setCANTimeout(250);
+
+    main_feeder.setInverted(false);
+
+    main_feeder.enableVoltageCompensation(12.0);
+    main_feeder.setSmartCurrentLimit(30);
+
+    main_feeder.burnFlash();
+
+    main_intake.burnFlash();
   }
 
   @Override
   public void updateInputs(ClimberIOInputs inputs) {
-    inputs.positionRad = Units.rotationsToRadians(encoder.getPosition() / GEAR_RATIO);
-    inputs.velocityRadPerSec =
-        Units.rotationsPerMinuteToRadiansPerSecond(encoder.getVelocity() / GEAR_RATIO);
-    inputs.appliedVolts = leader.getAppliedOutput() * leader.getBusVoltage();
-    inputs.currentAmps = new double[] {leader.getOutputCurrent()};
+  
+    inputs.appliedVolts = main_intake.getAppliedOutput() * main_intake.getBusVoltage();
+    inputs.currentAmps = new double[] {main_intake.getOutputCurrent()};
+    inputs.beamBreak = getBeamBreak();
+    inputs.feederCurrentAmps = new double[] {main_feeder.getOutputCurrent()};
+    inputs.feederAppliedVolts = main_feeder.getAppliedOutput() * main_feeder.getBusVoltage();
 
     
   }
 
   @Override
-  public void setVoltage(double volts) {
-    leader.setVoltage(volts);
+  public double getBeamBreak() {
+    return beam_break.get();
   }
 
- /*  @Override
-  public void setVelocity(double velocityRadPerSec, double ffVolts) {
-    pid.setReference(
-        Units.radiansPerSecondToRotationsPerMinute(velocityRadPerSec) * GEAR_RATIO,
-        ControlType.kVelocity,
-        0,
-        ffVolts,
-        ArbFFUnits.kVoltage);
-  }*/
+  @Override
+  public void setVoltage(double volts) {
+    main_intake.setVoltage(volts);
+  }
+
+  @Override
+  public void setFeederVoltage(double volts) {
+    main_feeder.setVoltage(volts);
+  }
 
   @Override
   public void stop() {
-    leader.stopMotor();
+    main_intake.stopMotor();
   }
 
-  /*@Override
-  public void configurePID(double kP, double kI, double kD) {
-    pid.setP(kP, 0);
-    pid.setI(kI, 0);
-    pid.setD(kD, 0);
-    pid.setFF(0, 0);
-  }*/
+  @Override
+  public void stopFeeder() {
+    main_feeder.stopMotor();
+  }
+
+
 }

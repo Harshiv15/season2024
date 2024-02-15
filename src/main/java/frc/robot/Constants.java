@@ -32,7 +32,11 @@ public final class Constants {
 
   public static final double GEAR_RATIO_INTAKE = 20*12;
   public static final double INERTIA_INTAKE = 0.004;
+  public static final double GEAR_RATIO_FEEDER = 20*12;
+  public static final double INERTIA_FEEDER = 0.004;
   public static final double MOTOR_INTAKE = 2;
+  public static final double MOTOR_FEEDER = 6;
+  public static final double BEAM_CHANNEL = 1;
 
   public static final double GEAR_RATIO_SHOOTER = 20*12;
   public static final double SHOOTER_INERTIA = 0.004;
@@ -42,6 +46,9 @@ public final class Constants {
   public static final double GEAR_RATIO_PIVOT = 20*12;
   public static final double PIVOT_INERTIA = 0.004;
   public static final double MOTOR_PIVOT = 5;
+
+  public static final double INTAKE_FORWARD_SPEED = 0.5;
+  public static final double INTAKE_REVERSE_SPEED = 0.5;
 
   public static enum Mode {
     /** Running on a real robot. */

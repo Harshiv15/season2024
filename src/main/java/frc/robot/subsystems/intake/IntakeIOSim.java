@@ -17,6 +17,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+import edu.wpi.first.wpilibj.simulation.DIOSim;
 
 public class IntakeIOSim implements IntakeIO {
 
@@ -24,10 +25,11 @@ public class IntakeIOSim implements IntakeIO {
 
   //correct double gearing, double jKgMetersSquared
   private DCMotorSim sim = new sim(DCMotor.getNEO(1), Constants.GEAR_RATIO_INTAKE, Constants.INERTIA_INTAKE);
+  private DCMotorSim simFeeder = new sim(DCMotor.getNEO(1), Constants.GEAR_RATIO_FEEDER, Constants.INERTIA_FEEDER);
+  private DIOSim simBeamBreak = new DIOSim(Constants.BEAM_CHANNEL);
 
-  //private boolean closedLoop = false;
-  //private double ffVolts = 0.0;
   private double appliedVolts = 0.0;
+  private double feederAppliedVolts = 0.0;
 
   @Override
   public void updateInputs(IntakeIOInputs inputs) {
@@ -40,25 +42,44 @@ public class IntakeIOSim implements IntakeIO {
     //time between updates
     sim.update(0.02);
 
-    inputs.positionRad = sim.getAngularPositionRad();
-    inputs.velocityRadPerSec = sim.getAngularVelocityRadPerSec();
+    //inputs.positionRad = sim.getAngularPositionRad();
+    //inputs.velocityRadPerSec = sim.getAngularVelocityRadPerSec();
 
     inputs.appliedVolts = appliedVolts;
     inputs.currentAmps = new double[] {sim.getCurrentDrawAmps()};
+
+    inputs.beamBreak = simBeamBreak.getValue();
+
+    inputs.feederAppliedVolts = feederAppliedVolts;
+    inputs.feederCurrentAmps = new double[] {simFeeder.getCurrentDrawAmps()};
+
   }
 
   @Override
   public void setVoltage(double volts) {
-    //closedLoop = false
     appliedVolts = volts;
     sim.setInputVoltage(volts);
   }
 
- 
+  @Override
+  public void setFeederVoltage(double volts) {
+    feederAppliedVolts = volts;
+    simFeeder.setInputVoltage(volts);
+  }
+
+  @Override
+  public boolean getBeamBreak() {
+    return simBeamBreak.getValue();
+  }
 
   @Override
   public void stop() {
     setVoltage(0.0);
+  }
+
+  @Override
+  public void stopFeeder() {
+    setFeederVoltage(0.0);
   }
 
 

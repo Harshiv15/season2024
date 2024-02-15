@@ -27,8 +27,15 @@ import org.littletonrobotics.junction.Logger;
 public class Intake extends SubsystemBase {
   private final IntakeIO io;
   private final IntakeIOInputsAutoLogged inputs = new IntakeIOInputsAutoLogged();
-  private final SimpleMotorFeedforward ffModel;
   private final SysIdRoutine sysId;
+
+  public static enum IntakeDirection {
+    FORWARD, REVERSE, STOPPED
+}
+
+public static enum IntakeStatus {
+    EMPTY, LOADED
+}
 
   /** Creates a new Flywheel. */
   public Intake(IntakeIO io) {
@@ -36,20 +43,7 @@ public class Intake extends SubsystemBase {
 
     // Switch constants based on mode (the physics simulator is treated as a
     // separate robot with different tuning)
-    switch (Constants.currentMode) {
-      case REAL:
-      case REPLAY:
-        /*ffModel = new SimpleMotorFeedforward(0.1, 0.05);
-        io.configurePID(1.0, 0.0, 0.0);*/
-        break;
-      case SIM:
-        //ffModel = new SimpleMotorFeedforward(0.0, 0.03);
-        //io.configurePID(0.5, 0.0, 0.0);
-        break;
-      default:
-        //ffModel = new SimpleMotorFeedforward(0.0, 0.0);
-        break;
-    }
+
 
     // Configure SysId
     sysId =
@@ -62,26 +56,46 @@ public class Intake extends SubsystemBase {
             new SysIdRoutine.Mechanism((voltage) -> runVolts(voltage.in(Volts)), null, this));
   }
 
+
+ 
+
   @Override
   public void periodic() {
     io.updateInputs(inputs);
     Logger.processInputs("Intake", inputs);
+
+//periodic logic
+if (intakeSensor.isPresent()) {
+  if (!intakeSensor.get().get()) {
+      status = IntakeStatus.EMPTY;
+  } else {
+      status = IntakeStatus.LOADED;
   }
+}
+
+if (direction == IntakeDirection.FORWARD) {
+  //setSpeed(Constants.INTAKE_FORWARD_SPEED, Constants.FEEDER_FORWARD_SPEED);
+  setVoltage(Constants.INTAKE_FORWARD_SPEED);
+} else if (direction == IntakeDirection.REVERSE) {
+  //setSpeed(Constants.INTAKE_REVERSE_SPEED, Constants.FEEDER_REVERSE_SPEED);
+  setVoltage(Constants.INTAKE_FORWARD_SPEED);
+} else {
+  //setSpeed(0, 0);
+  stop();
+}
+
+  }
+
+  //set intake state
 
   /** Run open loop at the specified voltage. */
   public void runVolts(double volts) {
     io.setVoltage(volts);
   }
 
-  /** Run closed loop at the specified velocity. */
-  /*public void runVelocity(double velocityRPM) {
-    var velocityRadPerSec = Units.rotationsPerMinuteToRadiansPerSecond(velocityRPM);
-    //io.setVelocity(velocityRadPerSec, ffModel.calculate(velocityRadPerSec));
 
-    // Log flywheel setpoint
-    Logger.recordOutput("Flywheel/SetpointRPM", velocityRPM);
-  }*/
 
+ 
   /** Stops the flywheel. */
   public void stop() {
     io.stop();
@@ -97,14 +111,6 @@ public class Intake extends SubsystemBase {
     return sysId.dynamic(direction);
   }
 
-  /** Returns the current velocity in RPM. */
-  @AutoLogOutput
-  public double getVelocityRPM() {
-    return Units.radiansPerSecondToRotationsPerMinute(inputs.velocityRadPerSec);
-  }
-
-  /** Returns the current velocity in radians per second. */
-  public double getCharacterizationVelocity() {
-    return inputs.velocityRadPerSec;
-  }
+  
+ 
 }

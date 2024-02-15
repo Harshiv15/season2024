@@ -168,9 +168,9 @@ public class RobotContainer {
             () -> -controller.getLeftY(),
             () -> -controller.getLeftX(),
             () -> -controller.getRightX()));
-    controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
-    controller
-        .b()
+    /*controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
+
+    controller.b()
         .onTrue(
             Commands.runOnce(
                     () ->
@@ -178,11 +178,9 @@ public class RobotContainer {
                             new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
                     drive)
                 .ignoringDisable(true));
-    controller
-        .a()
-        .whileTrue(
-            Commands.startEnd(
-                () -> flywheel.runVelocity(flywheelSpeedInput.get()), flywheel::stop, flywheel));
+    controller.a()
+        .whileTrue();*/
+    controller.y().onTrue(intake.setVoltage())
   }
 
   /**
