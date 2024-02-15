@@ -182,6 +182,7 @@ public class RobotContainer {
         .whileTrue();*/
     controller.y().onTrue(intake.setIntakeDirection(IntakeDirection.FORWARD));
     controller.start().onTrue(intake.setIntakeDirection(IntakeDirection.REVERSE));
+    climber.setDefaultCommand(climber.setVoltage(controller.getRightY().getAsDouble()/5.0))
   }
 
   /**
