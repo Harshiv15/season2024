@@ -21,6 +21,9 @@ import com.revrobotics.SparkPIDController;
 import com.revrobotics.SparkPIDController.ArbFFUnits;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
+import frc.robot.Constants;
+import frc.robot.subsystems.intake.Intake.IntakeDirection;
+import frc.robot.subsystems.intake.Intake.IntakeStatus;
 
 
 /**
@@ -30,9 +33,9 @@ import edu.wpi.first.wpilibj.DigitalInput;
 public class IntakeIOSparkMax implements IntakeIO {
   private static final double GEAR_RATIO = Constants.GEAR_RATIO_INTAKE;
 
-  private final CANSparkMax main_intake = new CANSparkMax(Constants.MOTOR_INTAKE, MotorType.kBrushless);
-  private final CANSparkMax main_feeder = new CANSparkMax(Constants.MOTOR_FEEDER, MotorType.kBrushless);
-  private final DigitalInput beam_break = new DigitalInput(Constants.BEAM_CHANNEL);
+  private final CANSparkMax main_intake = new CANSparkMax((int) Constants.MOTOR_INTAKE, MotorType.kBrushless);
+  private final CANSparkMax main_feeder = new CANSparkMax((int) Constants.MOTOR_FEEDER, MotorType.kBrushless);
+  private final DigitalInput beam_break = new DigitalInput((int) Constants.BEAM_CHANNEL);
   private IntakeStatus intake_status;
   private IntakeDirection intake_direction;
 
@@ -87,7 +90,7 @@ public class IntakeIOSparkMax implements IntakeIO {
   }
 
   @Override
-  public double getBeamBreak() {
+  public boolean getBeamBreak() {
     return beam_break.get();
   }
 
@@ -109,6 +112,17 @@ public class IntakeIOSparkMax implements IntakeIO {
   @Override
   public void stopFeeder() {
     main_feeder.stopMotor();
+  }
+
+
+  @Override
+  public IntakeDirection getDirection() {
+    return intake_direction;
+  }
+
+  @Override
+   public IntakeStatus getStatus() {
+    return intake_status;
   }
 
 

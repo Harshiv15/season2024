@@ -18,15 +18,18 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.simulation.DIOSim;
+import frc.robot.Constants;
+import frc.robot.subsystems.intake.Intake.IntakeDirection;
+import frc.robot.subsystems.intake.Intake.IntakeStatus;
 
 public class IntakeIOSim implements IntakeIO {
 
   //find moment of inertia of climber
 
   //correct double gearing, double jKgMetersSquared
-  private DCMotorSim sim = new sim(DCMotor.getNEO(1), Constants.GEAR_RATIO_INTAKE, Constants.INERTIA_INTAKE);
-  private DCMotorSim simFeeder = new sim(DCMotor.getNEO(1), Constants.GEAR_RATIO_FEEDER, Constants.INERTIA_FEEDER);
-  private DIOSim simBeamBreak = new DIOSim(Constants.BEAM_CHANNEL);
+  private DCMotorSim sim = new DCMotorSim(DCMotor.getNEO(1), Constants.GEAR_RATIO_INTAKE, Constants.INERTIA_INTAKE);
+  private DCMotorSim simFeeder = new DCMotorSim(DCMotor.getNEO(1), Constants.GEAR_RATIO_FEEDER, Constants.INERTIA_FEEDER);
+  private DIOSim simBeamBreak = new DIOSim((int) Constants.BEAM_CHANNEL);
 
   private double appliedVolts = 0.0;
   private double feederAppliedVolts = 0.0;
@@ -98,5 +101,14 @@ public class IntakeIOSim implements IntakeIO {
     setFeederVoltage(0.0);
   }
 
+  @Override
+  public IntakeDirection getDirection() {
+    return intake_direction;
+  }
+
+  @Override
+   public IntakeStatus getStatus() {
+    return intake_status;
+  }
 
 }

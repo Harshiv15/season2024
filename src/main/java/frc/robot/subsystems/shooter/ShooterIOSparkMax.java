@@ -20,20 +20,21 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.SparkPIDController.ArbFFUnits;
 import edu.wpi.first.math.util.Units;
+import frc.robot.Constants;
 
 /**
  * NOTE: To use the Spark Flex / NEO Vortex, replace all instances of "CANSparkMax" with
  * "CANSparkFlex".
  */
-public class FlywheelIOSparkMax implements FlywheelIO {
+public class ShooterIOSparkMax implements ShooterIO {
   private static final double GEAR_RATIO = Constants.GEAR_RATIO_SHOOTER;
 
-  private final CANSparkMax leader = new CANSparkMax(Constants.MOTOR_A_SHOOTER, MotorType.kBrushless);
-  private final CANSparkMax follower = new CANSparkMax(Constants.MOTOR_B_SHOOTER, MotorType.kBrushless);
+  private final CANSparkMax leader = new CANSparkMax((int) Constants.MOTOR_A_SHOOTER, MotorType.kBrushless);
+  private final CANSparkMax follower = new CANSparkMax((int) Constants.MOTOR_B_SHOOTER, MotorType.kBrushless);
   private final RelativeEncoder encoder = leader.getEncoder();
   private final SparkPIDController pid = leader.getPIDController();
 
-  public FlywheelIOSparkMax() {
+  public ShooterIOSparkMax() {
     leader.restoreFactoryDefaults();
     follower.restoreFactoryDefaults();
 

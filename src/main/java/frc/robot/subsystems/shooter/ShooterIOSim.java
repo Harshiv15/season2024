@@ -17,6 +17,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
+import frc.robot.Constants;
 
 public class ShooterIOSim implements ShooterIO {
   private FlywheelSim sim = new FlywheelSim(DCMotor.getNEO(1), Constants.GEAR_RATIO_SHOOTER, Constants.SHOOTER_INERTIA);

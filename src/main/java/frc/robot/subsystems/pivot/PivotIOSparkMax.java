@@ -11,7 +11,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 
-package frc.robot.subsystems.flywheel;
+package frc.robot.subsystems.pivot;
 
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkLowLevel.MotorType;
@@ -20,6 +20,7 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.SparkPIDController.ArbFFUnits;
 import edu.wpi.first.math.util.Units;
+import frc.robot.Constants;
 
 /**
  * NOTE: To use the Spark Flex / NEO Vortex, replace all instances of "CANSparkMax" with
@@ -28,7 +29,7 @@ import edu.wpi.first.math.util.Units;
 public class PivotIOSparkMax implements PivotIO {
   private static final double GEAR_RATIO = Constants.GEAR_RATIO_PIVOT;
 
-  private final CANSparkMax leader = new CANSparkMax(Constants.MOTOR_PIVOT, MotorType.kBrushless);
+  private final CANSparkMax leader = new CANSparkMax((int) Constants.MOTOR_PIVOT, MotorType.kBrushless);
   private final RelativeEncoder encoder = leader.getEncoder();
   private final SparkPIDController pid = leader.getPIDController();
 

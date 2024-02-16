@@ -21,6 +21,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
+import frc.robot.subsystems.intake.IntakeIO.IntakeIOInputs;
+
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -74,11 +76,11 @@ public static enum IntakeStatus {
   }
 
 
-if (io.direction == IntakeDirection.FORWARD) {
+if (io.getDirection() == IntakeDirection.FORWARD) {
   //setSpeed(Constants.INTAKE_FORWARD_SPEED, Constants.FEEDER_FORWARD_SPEED);
   runVolts(Constants.INTAKE_FORWARD_SPEED);
   runFeederVolts(Constants.FEEDER_FORWARD_SPEED);
-} else if (io.direction == IntakeDirection.REVERSE) {
+} else if (io.getDirection() == IntakeDirection.REVERSE) {
   //setSpeed(Constants.INTAKE_REVERSE_SPEED, Constants.FEEDER_REVERSE_SPEED);
   runVolts(Constants.INTAKE_REVERSE_SPEED);
   runFeederVolts(Constants.FEEDER_REVERSE_SPEED);
@@ -95,7 +97,7 @@ public void setIntakeDirection(IntakeDirection direction) {
 }
 
 public boolean hasNote() {
-  return io.status == IntakeStatus.LOADED
+  return io.getStatus() == IntakeStatus.LOADED;
 }
 
   /** Run open loop at the specified voltage. */

@@ -20,6 +20,7 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.SparkPIDController.ArbFFUnits;
 import edu.wpi.first.math.util.Units;
+import frc.robot.Constants;
 
 /**
  * NOTE: To use the Spark Flex / NEO Vortex, replace all instances of "CANSparkMax" with
@@ -28,8 +29,8 @@ import edu.wpi.first.math.util.Units;
 public class ClimberIOSparkMax implements ClimberIO {
   private static final double GEAR_RATIO = Constants.GEAR_RATIO_CLIMB;
 
-  private final CANSparkMax leader = new CANSparkMax(Constants.MOTOR_A_CLIMB, MotorType.kBrushless);
-  private final CANSparkMax follower = new CANSparkMax(Constants.MOTOR_B_CLIMB, MotorType.kBrushless);
+  private final CANSparkMax leader = new CANSparkMax((int) Constants.MOTOR_A_CLIMB, MotorType.kBrushless);
+  private final CANSparkMax follower = new CANSparkMax((int) Constants.MOTOR_B_CLIMB, MotorType.kBrushless);
   private final RelativeEncoder encoderA = leader.getEncoder();
   private final RelativeEncoder encoderB = follower.getEncoder();
   //private final SparkPIDController pid = leader.getPIDController();
@@ -53,15 +54,10 @@ public class ClimberIOSparkMax implements ClimberIO {
 
   @Override
   public void updateInputs(ClimberIOInputs inputs) {
-    inputs.positionRadA = Units.rotationsToRadians(encoderA.getPosition() / GEAR_RATIO);
-    inputs.velocityRadPerSecA =
-        Units.rotationsPerMinuteToRadiansPerSecond(encoderA.getVelocity() / GEAR_RATIO);
+    
     inputs.appliedVoltsA = leader.getAppliedOutput() * leader.getBusVoltage();
     inputs.currentAmpsA = new double[] {leader.getOutputCurrent()};
 
-    inputs.positionRadB = Units.rotationsToRadians(encoderB.getPosition() / GEAR_RATIO);
-    inputs.velocityRadPerSecB =
-        Units.rotationsPerMinuteToRadiansPerSecond(encoderB.getVelocity() / GEAR_RATIO);
     inputs.appliedVoltsB = follower.getAppliedOutput() * follower.getBusVoltage();
     inputs.currentAmpsB = new double[] {follower.getOutputCurrent()};
   }

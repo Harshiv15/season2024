@@ -16,8 +16,10 @@ package frc.robot.subsystems.pivot;
 import static edu.wpi.first.units.Units.*;
 
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ProfiledPIDSubsystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
@@ -34,6 +36,9 @@ public class Pivot extends ProfiledPIDSubsystem {
 
   /** Creates a new Flywheel. */
   public Pivot(PivotIO io) {
+    //pid controller needs to be corrected
+    //super(new ProfiledPIDController(getVelocityRPM(), getMeasurement(), getCharacterizationVelocity(), null));
+    super(new ProfiledPIDController(0, 0, 0, null));
     this.io = io;
 
     // Switch constants based on mode (the physics simulator is treated as a
@@ -70,7 +75,7 @@ public class Pivot extends ProfiledPIDSubsystem {
     Logger.processInputs("Pivot", inputs);
   }
 
-  public void setPosition() {
+  public void setPosition(double setpoint) {
     getController().setGoal(setpoint);
   }
 
@@ -116,5 +121,17 @@ public class Pivot extends ProfiledPIDSubsystem {
   /** Returns the current velocity in radians per second. */
   public double getCharacterizationVelocity() {
     return inputs.velocityRadPerSec;
+  }
+
+  @Override
+  protected void useOutput(double output, State setpoint) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'useOutput'");
+  }
+
+  @Override
+  protected double getMeasurement() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'getMeasurement'");
   }
 }

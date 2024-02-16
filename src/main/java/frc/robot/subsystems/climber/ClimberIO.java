@@ -18,11 +18,11 @@ import org.littletonrobotics.junction.AutoLog;
 public interface ClimberIO {
   @AutoLog
   public static class ClimberIOInputs {
-    public double positionRadA = 0.0;
+    /*public double positionRadA = 0.0;
     public double positionRadB = 0.0;
 
     public double velocityRadPerSecA = 0.0;
-    public double velocityRadPerSecB = 0.0;
+    public double velocityRadPerSecB = 0.0;*/
 
     public double appliedVoltsA = 0.0;
     public double appliedVoltsB = 0.0;
@@ -33,7 +33,7 @@ public interface ClimberIO {
   }
 
   /** Updates the set of loggable inputs. */
-  public default void updateInputs(FlywheelIOInputs inputs) {}
+  public default void updateInputs(ClimberIOInputs inputs) {}
 
   /** Run open loop at the specified voltage. */
   public default void setVoltage(double volts) {}

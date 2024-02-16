@@ -21,6 +21,9 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
@@ -30,13 +33,19 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOSparkMax;
-import frc.robot.subsystems.flywheel.Flywheel;
-import frc.robot.subsystems.flywheel.FlywheelIO;
-import frc.robot.subsystems.flywheel.FlywheelIOSim;
-import frc.robot.subsystems.flywheel.FlywheelIOSparkMax;
 import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.IntakeIO;
+import frc.robot.subsystems.intake.IntakeIOSim;
+import frc.robot.subsystems.intake.IntakeIOSparkMax;
+import frc.robot.subsystems.intake.Intake.IntakeDirection;
 import frc.robot.subsystems.pivot.Pivot;
+import frc.robot.subsystems.pivot.PivotIO;
+import frc.robot.subsystems.pivot.PivotIOSim;
+import frc.robot.subsystems.pivot.PivotIOSparkMax;
 import frc.robot.subsystems.shooter.Shooter;
+import frc.robot.subsystems.shooter.ShooterIO;
+import frc.robot.subsystems.shooter.ShooterIOSim;
+import frc.robot.subsystems.shooter.ShooterIOSparkMax;
 
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
@@ -44,6 +53,9 @@ import frc.robot.util.FlywheelLookupTable;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.subsystems.Vision.PoseEstimator;
 import frc.robot.subsystems.climber.Climber;
+import frc.robot.subsystems.climber.ClimberIO;
+import frc.robot.subsystems.climber.ClimberIOSim;
+import frc.robot.subsystems.climber.ClimberIOSparkMax;
 
 
 /**
@@ -172,9 +184,12 @@ public class RobotContainer {
     //on hold for vision
             //controllerDrive.rightBumper().whileTrue(vision.followNoteCommand())
    
-    controllerOperator.y().onTrue(intake.setIntakeDirection(IntakeDirection.FORWARD));
-    controllerOperator.start().onTrue(intake.setIntakeDirection(IntakeDirection.REVERSE));
-    climber.setDefaultCommand(climber.setVoltage(controllerOperator.getRightY().getAsDouble()/5.0));
+    controllerOperator.y().onTrue(new InstantCommand(() -> {intake.setIntakeDirection(IntakeDirection.FORWARD);}));
+    controllerOperator.start().onTrue(new InstantCommand(() -> {intake.setIntakeDirection(IntakeDirection.REVERSE);}));
+    climber.setDefaultCommand(new InstantCommand(() -> {climber.runVolts(controllerOperator.getRightY()/5.0);}));
+    /*
+    fix later
+
     controllerOperator.a().onTrue(Commands.runOnce(new ParallelCommandGroup(
         new RunCommand(() -> pivot.setPosition(lookupTable
         .get(poseEstimator.getDistanceToPose(target.getTranslation())).getAngleSetpoint()))
@@ -184,7 +199,7 @@ public class RobotContainer {
             poseEstimator.getDistanceToPose(target.getTranslation())).getRPM()).until(null)
     ),
     new InstantCommand(() -> intake.setIntakeDirection(IntakeDirection.FORWARD)).onlyWhile(() -> intake.hasNote()),
-    new InstantCommand(() -> shooter.stop()).onlyIf(() -> !intake.hasNote())));
+    new InstantCommand(() -> shooter.stop()).onlyIf(() -> !intake.hasNote())));*/
   }
 
   /**

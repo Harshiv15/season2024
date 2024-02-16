@@ -17,14 +17,15 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+import frc.robot.Constants;
 
 public class ClimberIOSim implements ClimberIO {
 
   //find moment of inertia of climber
 
   //correct double gearing, double jKgMetersSquared
-  private DCMotorSim simA = new sim(DCMotor.getNEO(1), Constants.GEAR_RATIO_CLIMB, Constants.INERTIA_CLIMB);
-  private DCMotorSim simB = new sim(DCMotor.getNEO(1), Constants.GEAR_RATIO_CLIMB, Constants.INERTIA_CLIMB);
+  private DCMotorSim simA = new DCMotorSim(DCMotor.getNEO(1), Constants.GEAR_RATIO_CLIMB, Constants.INERTIA_CLIMB);
+  private DCMotorSim simB = new DCMotorSim(DCMotor.getNEO(1), Constants.GEAR_RATIO_CLIMB, Constants.INERTIA_CLIMB);
 
   //private boolean closedLoop = false;
   //private double ffVolts = 0.0;
@@ -42,10 +43,7 @@ public class ClimberIOSim implements ClimberIO {
     simA.update(0.02);
     simB.update(0.02);
 
-    inputs.positionRadA = simA.getAngularPositionRad();
-    inputs.velocityRadPerSecA = simA.getAngularVelocityRadPerSec();
-    inputs.positionRadB = simB.getAngularPositionRad();
-    inputs.velocityRadPerSecB = simB.getAngularVelocityRadPerSec();
+    
     inputs.appliedVoltsA = appliedVolts;
     inputs.appliedVoltsB = -appliedVolts;
     inputs.currentAmpsA = new double[] {simA.getCurrentDrawAmps()};

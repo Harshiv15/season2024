@@ -15,6 +15,9 @@ package frc.robot.subsystems.intake;
 
 import org.littletonrobotics.junction.AutoLog;
 
+import frc.robot.subsystems.intake.Intake.IntakeDirection;
+import frc.robot.subsystems.intake.Intake.IntakeStatus;
+
 public interface IntakeIO {
   @AutoLog
   public static class IntakeIOInputs {
@@ -56,4 +59,12 @@ public interface IntakeIO {
   public default void stop() {}
 
   public default void stopFeeder() {}
+
+   public default IntakeDirection getDirection() {
+    return null;
+  }
+
+   public default IntakeStatus getStatus() {
+    return null;
+  }
 }
