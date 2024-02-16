@@ -34,11 +34,16 @@ import frc.robot.subsystems.flywheel.Flywheel;
 import frc.robot.subsystems.flywheel.FlywheelIO;
 import frc.robot.subsystems.flywheel.FlywheelIOSim;
 import frc.robot.subsystems.flywheel.FlywheelIOSparkMax;
+import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.pivot.Pivot;
+import frc.robot.subsystems.shooter.Shooter;
+
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
 import frc.robot.util.FlywheelLookupTable;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.subsystems.Vision.PoseEstimator;
+import frc.robot.subsystems.climber.Climber;
 
 
 /**
