@@ -1,23 +1,23 @@
 package frc.robot.layout;
 
-import java.util.function.Supplier;
-
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj2.command.PrintCommand;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Config;
-import frc.robot.core.util.controllers.CommandMap;
-import frc.robot.core.util.controllers.GameController;
-import frc.robot.subsystems.Intake.IntakeDirection;
-import frc.robot.subsystems.*;
 import frc.robot.RobotMap.Coordinates;
 import frc.robot.RobotMap.PivotMap;
 import frc.robot.RobotMap.ShamperMap;
+import frc.robot.core.util.controllers.CommandMap;
+import frc.robot.core.util.controllers.GameController;
+import frc.robot.subsystems.*;
+import frc.robot.subsystems.Intake.IntakeDirection;
 import frc.robot.util.FlywheelLookupTable;
+
+import java.util.function.Supplier;
 
 public abstract class OperatorMap extends CommandMap {
 
@@ -113,19 +113,46 @@ public abstract class OperatorMap extends CommandMap {
   private void registerComplexCommands() {
     if (Config.Subsystems.SHAMPER_ENABLED && Config.Subsystems.INTAKE_ENABLED
             && Config.Subsystems.DRIVETRAIN_ENABLED) {
+      Drivetrain drivetrain = Drivetrain.getInstance();
       Intake intake = Intake.getInstance();
       Shamper shooter = Shamper.getInstance();
       Pivot pivot = Pivot.getInstance();
       FlywheelLookupTable lookupTable = FlywheelLookupTable.getInstance();
-      Supplier<Pose2d> target = () -> (DriverStation.getAlliance().get() == DriverStation.Alliance.Blue) ? Coordinates.BLUE_SPEAKER
-              : Coordinates.RED_SPEAKER;
       PoseEstimator poseEstimator = PoseEstimator.getInstance();
+
+      Supplier<Pose2d> target = () -> (DriverStation.getAlliance().get() == DriverStation.Alliance.Blue) ?
+        Coordinates.BLUE_SPEAKER
+        : Coordinates.RED_SPEAKER;
+
+      target.get().transformBy(
+        new Transform2d(
+          drivetrain.getChassisSpeeds().vxMetersPerSecond
+            * lookupTable.get(
+              poseEstimator.getDistanceToPose(() -> target.get().getTranslation())
+            )
+            .getFlightTime(),
+          drivetrain.getChassisSpeeds().vyMetersPerSecond
+            * lookupTable.get(
+              poseEstimator.getDistanceToPose(() -> target.get().getTranslation())
+            )
+            .getFlightTime(),
+          target.get().getRotation()
+        ).inverse() // because we're technically "closer" to the speaker
+      );
 
       getArcButton().whileTrue((pivot.updatePosition(() -> lookupTable
                       .get(poseEstimator.getDistanceToPose(() -> target.get().getTranslation())).getAngleSetpoint())
-              .alongWith(shooter.setShootVelocityCommand(() -> lookupTable.get(
-                              poseEstimator.getDistanceToPose(() -> target.get().getTranslation())).getFlywheelV(),
-                      () -> lookupTable.get(poseEstimator.getDistanceToPose(() -> target.get().getTranslation())).getFeederV()))));
+              .alongWith(
+                shooter.setShootVelocityCommand(
+                  () -> lookupTable.get(
+                              poseEstimator.getDistanceToPose(
+                                () -> target.get().getTranslation())).getFlywheelV(),
+                  // it's going to be the same value everywhere! why did we have feeder velocity in the LUT?
+                  () -> 4000.0
+                )
+              )
+        )
+      );
 
       getArcButton().onFalse(pivot.updatePosition(() -> PivotMap.LOWER_SETPOINT_LIMIT + 1).alongWith(
         shooter.setShootVelocityCommand(() -> 0.0, () -> 0.0)).andThen(shooter.setFeederVelocityCommand(() -> 0.0)));
@@ -162,11 +189,22 @@ public abstract class OperatorMap extends CommandMap {
       AddressableLEDLights lights = AddressableLEDLights.getInstance();
       Intake intake = Intake.getInstance();
 
-      // these might need to require the subsystem to interrupt but not cancel the default state
-      getAmplifyButton().onTrue(lights.toggleAmplifyState(intake::getNoteStatus));
-      getCoopButton().onTrue(lights.toggleCoopState(intake::getNoteStatus));
-      // because default commands don't work for some reason
-      new Trigger(() -> true).whileTrue(lights.useState(lights::getState));
+      getAmplifyButton().onTrue(
+        lights.getAmplifyPatternCommand()
+          .withTimeout(4.0)
+          .andThen(lights.setNoteStatusCommand(intake::getNoteStatus))
+      );
+
+      getCoopButton().onTrue(
+        lights.getCoOpPatternCommand()
+          .withTimeout(4.0)
+          .andThen(lights.setNoteStatusCommand(intake::getNoteStatus))
+      );
+
+      lights.setColorCommand(Config.IS_ALLIANCE_RED ? Color.kRed : Color.kBlue).schedule();
+
+      // will get canceled on both triggers until the rising edge is detected
+      lights.setDefaultCommand(lights.setNoteStatusCommand(intake::getNoteStatus));
     }
   }
 
